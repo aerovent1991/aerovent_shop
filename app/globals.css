@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 255, 255, 255;
+  --background-start-rgb: 10, 10, 15; /* aero-black */
+  --background-end-rgb: 26, 44, 85;   /* aero-dark */
+}
+
+@layer base {
+  body {
+    color: rgb(var(--foreground-rgb));
+    background: linear-gradient(
+        to bottom,
+        transparent,
+        rgb(var(--background-end-rgb))
+      )
+      rgb(var(--background-start-rgb));
+    min-height: 100vh;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: '"Black Ops One"', system-ui, cursive;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  .tactical-clip {
+    clip-path: polygon(0 0, 100% 0, 100% 85%, 95% 100%, 0 100%);
+  }
+  
+  .tactical-clip-sm {
+    clip-path: polygon(0 0, 100% 0, 100% 90%, 90% 100%, 0 100%);
+  }
+  
+  .bg-tactical-grid {
+    background-size: 50px 50px;
+    background-image: 
+      linear-gradient(rgba(39, 67, 126, 0.1) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(39, 67, 126, 0.1) 1px, transparent 1px);
+  }
+  
+  .bg-blue-glow {
+    background: radial-gradient(circle at 50% 50%, #27437E 0%, #1a2c55 50%, #0a0a0f 100%);
+  }
+  
+  /* Анімації вже доступні через tailwind.config.js */
+}
