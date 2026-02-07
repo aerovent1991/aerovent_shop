@@ -27,6 +27,15 @@ export async function GET(request: NextRequest) {
     // Побудова WHERE
     const conditions: string[] = [];
     const params: any[] = [];
+
+    const priceExpr = `
+      price
+      + COALESCE((SELECT price FROM rx_options WHERE id = rx_default_id), 0)
+      + COALESCE((SELECT price FROM vtx_options WHERE id = vtx_default_id), 0)
+      + COALESCE((SELECT price FROM camera_options WHERE id = camera_default_id), 0)
+      + COALESCE((SELECT price FROM battery_options WHERE id = battery_default_id), 0)
+      + COALESCE((SELECT price FROM fiber_spool_options WHERE id = fiber_spool_default_id), 0)
+    `;
     
     if (application) {
       conditions.push('application = ?');
@@ -39,12 +48,12 @@ export async function GET(request: NextRequest) {
     }
     
     if (minPrice) {
-      conditions.push('price >= ?');
+      conditions.push(`(${priceExpr}) >= ?`);
       params.push(parseFloat(minPrice));
     }
     
     if (maxPrice) {
-      conditions.push('price <= ?');
+      conditions.push(`(${priceExpr}) <= ?`);
       params.push(parseFloat(maxPrice));
     }
     
@@ -82,7 +91,7 @@ export async function GET(request: NextRequest) {
       SELECT 
         id,
         model,
-        price,
+        (${priceExpr}) as price,
         production_status as productionStatus,
         size,
         application,
@@ -114,8 +123,8 @@ export async function GET(request: NextRequest) {
       SELECT 
         GROUP_CONCAT(DISTINCT application) as applications,
         GROUP_CONCAT(DISTINCT connection) as connections,
-        MIN(price) as minPrice,
-        MAX(price) as maxPrice,
+        MIN(${priceExpr}) as minPrice,
+        MAX(${priceExpr}) as maxPrice,
         MIN(size) as minSize,
         MAX(size) as maxSize
       FROM drones

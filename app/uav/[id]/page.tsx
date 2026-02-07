@@ -48,5 +48,11 @@ export default async function UAVDetailPage({ params }: Params) {
     notFound();
   }
 
-  return <UavDetailClient drone={data.drone} relatedDrones={data.related} />;
+  return (
+    <UavDetailClient
+      drone={data.drone}
+      relatedDrones={data.related}
+      optionGroups={data.optionGroups}
+    />
+  );
 }

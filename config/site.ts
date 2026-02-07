@@ -1,6 +1,6 @@
 export const SITE_CONFIG = {
   name: "АЕРО ВЕНТ",
-  siteUrl: "https://aero-vent-shop-next-m1q2.vercel.app",
+  siteUrl: "https://aerovent.com.ua",
 
   contact: {
     phone: "+38 (093) 778 96 44",

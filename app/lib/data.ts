@@ -21,14 +21,38 @@ export type RelatedDrone = {
   image?: string;
 };
 
+export type DroneOptionItem = {
+  id: number;
+  label: string;
+  price: number;
+  priceDelta: number;
+  isDefault: boolean;
+  details?: string | null;
+};
+
+export type DroneOptionGroup = {
+  code: string;
+  label: string;
+  required: boolean;
+  options: DroneOptionItem[];
+};
+
 async function fetchHeroProducts(limit: number = 8): Promise<TransformedDrone[]> {
   const safeLimit = Number.isFinite(limit) ? Math.max(1, Math.floor(limit)) : 8;
+  const priceExpr = `
+      price
+      + COALESCE((SELECT price FROM rx_options WHERE id = rx_default_id), 0)
+      + COALESCE((SELECT price FROM vtx_options WHERE id = vtx_default_id), 0)
+      + COALESCE((SELECT price FROM camera_options WHERE id = camera_default_id), 0)
+      + COALESCE((SELECT price FROM battery_options WHERE id = battery_default_id), 0)
+      + COALESCE((SELECT price FROM fiber_spool_options WHERE id = fiber_spool_default_id), 0)
+    `;
   const sql = `
     SELECT 
       id,
       'drone' as type,
       model,
-      price,
+      (${priceExpr}) as price,
       production_status as productionStatus,
       size,
       application,
@@ -136,7 +160,165 @@ export const getHeroProductsCached = unstable_cache(
   { revalidate: 300, tags: ['products'] }
 );
 
-async function fetchUavById(id: string): Promise<{ drone: TransformedDrone; related: RelatedDrone[] } | null> {
+function parseIdArray(value: any): number[] {
+  if (!value) return [];
+  if (Array.isArray(value)) {
+    return value.map((v) => Number(v)).filter((v) => Number.isFinite(v));
+  }
+  if (typeof value === 'string') {
+    try {
+      const parsed = JSON.parse(value);
+      if (Array.isArray(parsed)) {
+        return parsed.map((v) => Number(v)).filter((v) => Number.isFinite(v));
+      }
+    } catch {
+      // fall through to CSV parsing
+    }
+    return value
+      .split(',')
+      .map((v) => Number(v.trim()))
+      .filter((v) => Number.isFinite(v));
+  }
+  return [];
+}
+
+async function fetchOptionsByIds(
+  table: string,
+  ids: number[]
+): Promise<Array<{ id: number; label: string; price: number; details?: string | null }>> {
+  if (!ids.length) return [];
+  const placeholders = ids.map(() => '?').join(',');
+  const sql = `
+    SELECT id, label, price, NULL as details
+    FROM ${table}
+    WHERE id IN (${placeholders})
+    ORDER BY FIELD(id, ${placeholders})
+  `;
+  const rows = await query(sql, [...ids, ...ids]);
+  if (!Array.isArray(rows)) return [];
+  return (rows as any[]).map((row) => ({
+    id: Number(row.id),
+    label: row.label,
+    price: Number(row.price) || 0,
+    details: row.details ?? null,
+  }));
+}
+
+async function fetchOptionGroupsForDrone(raw: any): Promise<DroneOptionGroup[]> {
+  const groups: DroneOptionGroup[] = [];
+
+  const rxIds = parseIdArray(raw.rx_option_ids);
+  const vtxIds = parseIdArray(raw.vtx_option_ids);
+  const cameraIds = parseIdArray(raw.camera_option_ids);
+  const batteryIds = parseIdArray(raw.battery_option_ids);
+  const fiberIds = parseIdArray(raw.fiber_spool_option_ids);
+
+  const [
+    rxOptions,
+    vtxOptions,
+    cameraOptions,
+    batteryOptions,
+    fiberOptions,
+  ] = await Promise.all([
+    fetchOptionsByIds('rx_options', rxIds),
+    fetchOptionsByIds('vtx_options', vtxIds),
+    fetchOptionsByIds('camera_options', cameraIds),
+    fetchOptionsByIds('battery_options', batteryIds),
+    fetchOptionsByIds('fiber_spool_options', fiberIds),
+  ]);
+
+  const rxDefault = Number(raw.rx_default_id);
+  const vtxDefault = Number(raw.vtx_default_id);
+  const cameraDefault = Number(raw.camera_default_id);
+  const batteryDefault = Number(raw.battery_default_id);
+  const fiberDefault = Number(raw.fiber_spool_default_id);
+
+  if (rxOptions.length) {
+    const base = rxOptions.find((o) => o.id === rxDefault)?.price ?? 0;
+    groups.push({
+      code: 'rx',
+      label: 'Модуль RX*',
+      required: true,
+      options: rxOptions.map((opt) => ({
+        id: opt.id,
+        label: opt.label,
+        price: opt.price,
+        priceDelta: opt.price - base,
+        isDefault: opt.id === rxDefault,
+      })),
+    });
+  }
+
+  if (vtxOptions.length) {
+    const base = vtxOptions.find((o) => o.id === vtxDefault)?.price ?? 0;
+    groups.push({
+      code: 'vtx',
+      label: 'Модуль VTX*',
+      required: true,
+      options: vtxOptions.map((opt) => ({
+        id: opt.id,
+        label: opt.label,
+        price: opt.price,
+        priceDelta: opt.price - base,
+        isDefault: opt.id === vtxDefault,
+      })),
+    });
+  }
+
+  if (cameraOptions.length) {
+    const base = cameraOptions.find((o) => o.id === cameraDefault)?.price ?? 0;
+    groups.push({
+      code: 'camera',
+      label: 'Камера*',
+      required: true,
+      options: cameraOptions.map((opt) => ({
+        id: opt.id,
+        label: opt.label,
+        price: opt.price,
+        priceDelta: opt.price - base,
+        isDefault: opt.id === cameraDefault,
+      })),
+    });
+  }
+
+  if (batteryOptions.length) {
+    const base = batteryOptions.find((o) => o.id === batteryDefault)?.price ?? 0;
+    groups.push({
+      code: 'battery',
+      label: 'Батарея',
+      required: false,
+      options: batteryOptions.map((opt) => ({
+        id: opt.id,
+        label: opt.label,
+        price: opt.price,
+        priceDelta: opt.price - base,
+        isDefault: opt.id === batteryDefault,
+      })),
+    });
+  }
+
+  if (fiberOptions.length) {
+    const base = fiberOptions.find((o) => o.id === fiberDefault)?.price ?? 0;
+    groups.push({
+      code: 'fiber_spool',
+      label: 'Оптоволоконна котушка',
+      required: true,
+      options: fiberOptions.map((opt) => ({
+        id: opt.id,
+        label: opt.label,
+        price: opt.price,
+        priceDelta: opt.price - base,
+        isDefault: opt.id === fiberDefault,
+      })),
+    });
+  }
+
+  return groups;
+}
+
+async function fetchUavById(
+  id: string
+): Promise<{ drone: TransformedDrone; related: RelatedDrone[]; optionGroups: DroneOptionGroup[] } | null> {
   if (!id || typeof id !== 'string') {
     return null;
   }
@@ -162,7 +344,17 @@ async function fetchUavById(id: string): Promise<{ drone: TransformedDrone; rela
       detailed_info AS detailedInfo,
       main_image AS image,
       gallery_images AS gallery,
-      created_at AS createdAt
+      created_at AS createdAt,
+      rx_option_ids,
+      rx_default_id,
+      vtx_option_ids,
+      vtx_default_id,
+      camera_option_ids,
+      camera_default_id,
+      battery_option_ids,
+      battery_default_id,
+      fiber_spool_option_ids,
+      fiber_spool_default_id
     FROM drones
     WHERE id = ?
     LIMIT 1
@@ -223,7 +415,8 @@ async function fetchUavById(id: string): Promise<{ drone: TransformedDrone; rela
       : [];
   }
 
-  return { drone, related };
+  const optionGroups = await fetchOptionGroupsForDrone(raw);
+  return { drone, related, optionGroups };
 }
 
 export const getUavByIdCached = (id: string) =>

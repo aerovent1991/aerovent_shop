@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowLeft, Target, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -37,6 +37,26 @@ export function DroneDetectorDetailClient({ detector, similar }: Props) {
 
   const currentImage = gallery[currentImageIndex] || detector.image;
 
+  const messageText = useMemo(() => {
+    const lines = [
+      `Детектор: ${detector.model || 'Без назви'}`,
+      `ID: ${detector.id}`,
+      `Ціна: ${detector.price.toLocaleString('uk-UA')} грн`,
+    ];
+    return lines.join('\n');
+  }, [detector.id, detector.model, detector.price]);
+
+  const whatsappMessage = useMemo(
+    () => encodeURIComponent(messageText),
+    [messageText]
+  );
+
+  const mailtoHref = useMemo(() => {
+    const subject = encodeURIComponent('Замовлення детектора');
+    const body = encodeURIComponent(messageText);
+    return `mailto:${SITE_CONFIG.contact.email}?subject=${subject}&body=${body}`;
+  }, [messageText]);
+
   return (
     <div className="min-h-screen bg-black pt-24 pb-12">
       <div className="absolute inset-0 bg-tactical-grid opacity-20 pointer-events-none fixed"></div>
@@ -52,7 +72,7 @@ export function DroneDetectorDetailClient({ detector, similar }: Props) {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-12">
           <div className="space-y-6">
-            <div className="relative aspect-square bg-black/50 border border-white/10 tactical-clip overflow-hidden group">
+            <div className="relative aspect-[4/3] bg-black/50 border border-white/10 tactical-clip overflow-hidden group">
               {currentImage ? (
                 <div className="relative w-full h-full">
                   <Image
@@ -60,7 +80,7 @@ export function DroneDetectorDetailClient({ detector, similar }: Props) {
                     alt={detector.model}
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 40vw"
-                    className="object-contain p-8"
+                    className="object-cover object-center"
                     priority
                   />
 
@@ -110,7 +130,7 @@ export function DroneDetectorDetailClient({ detector, similar }: Props) {
                   <button
                     key={index}
                     onClick={() => setCurrentImageIndex(index)}
-                    className={`aspect-square border-2 transition-all ${
+                    className={`aspect-[4/3] border-2 transition-all ${
                       index === currentImageIndex
                         ? 'border-aero-accent bg-aero/10'
                         : 'border-white/10 hover:border-white/30'
@@ -137,7 +157,7 @@ export function DroneDetectorDetailClient({ detector, similar }: Props) {
                 {detector.model}
               </h1>
               <div className="text-3xl font-mono text-green-400">
-                {detector.price.toLocaleString()} грн
+                {detector.price.toLocaleString('uk-UA')} грн
               </div>
             </div>
 
@@ -148,15 +168,23 @@ export function DroneDetectorDetailClient({ detector, similar }: Props) {
               />
             )}
 
-            <a
-              href={SITE_CONFIG.social.whatsapp}
-              className="w-full bg-aero hover:bg-aero-light text-white font-bold py-4 px-8 tactical-clip uppercase tracking-wider transition-all hover:scale-[1.02] shadow-lg shadow-aero/20 text-lg flex items-center justify-center mb-8"
-              target="_blank"
-              rel="noreferrer"
-            >
-              <Target className="w-5 h-5 mr-2" />
-              ЗАМОВИТИ ДЕТЕКТОР
-            </a>
+            <div className="space-y-3 mb-8">
+              <a
+                href={`${SITE_CONFIG.social.whatsapp}?text=${whatsappMessage}`}
+                className="w-full bg-aero hover:bg-aero-light text-white font-bold py-4 px-8 tactical-clip uppercase tracking-wider transition-all hover:scale-[1.02] shadow-lg shadow-aero/20 text-lg flex items-center justify-center"
+                target="_blank"
+                rel="noreferrer"
+              >
+                <Target className="w-5 h-5 mr-2" />
+                Замовити у WhatsApp
+              </a>
+              <a
+                href={mailtoHref}
+                className="w-full bg-transparent border border-white/20 hover:border-aero-accent text-white hover:text-aero-accent font-bold py-4 px-8 tactical-clip uppercase tracking-wider transition-all text-lg flex items-center justify-center"
+              >
+                Замовити через Email
+              </a>
+            </div>
 
             <p className="text-xs text-center text-gray-500 mb-8">
               * Для замовлення напишіть нам повідомлення або зателефонуйте
@@ -167,7 +195,7 @@ export function DroneDetectorDetailClient({ detector, similar }: Props) {
         {detector.detailedInfo && (
           <div className="bg-black/50 border border-white/10 tactical-clip p-8 mb-12">
             <h3 className="text-xl font-stencil text-white mb-6 border-b border-white/10 pb-3">
-              ДЕТАЛЬНИЙ ОПИС
+              Детальний опис
             </h3>
             <div
               className="prose prose-invert max-w-none"
@@ -179,7 +207,7 @@ export function DroneDetectorDetailClient({ detector, similar }: Props) {
         {similar.length > 0 && (
           <div className="border-t border-white/10 pt-12">
             <h2 className="text-3xl font-stencil text-white mb-8">
-              СХОЖІ ДЕТЕКТОРИ
+              Схожі детектори
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {similar.map((item) => (

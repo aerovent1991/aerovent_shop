@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowLeft, Target, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -28,6 +28,34 @@ export function EwsDetailClient({ ews, similar }: EwsDetailClientProps) {
 
   const currentImage = gallery[currentImageIndex] || ews.image;
 
+  const statusLabel =
+    ews.productionStatus === 'inProduction'
+      ? 'В наявності'
+      : ews.productionStatus === 'madeToOrder'
+      ? 'Під замовлення'
+      : 'Знятий з виробництва';
+
+  const messageText = useMemo(() => {
+    const lines = [
+      `РЕБ: ${ews.model || 'Без назви'}`,
+      `ID: ${ews.id}`,
+      `Статус: ${statusLabel}`,
+      `Ціна: ${ews.price.toLocaleString('uk-UA')} грн`,
+    ];
+    return lines.join('\n');
+  }, [ews.id, ews.model, ews.price, statusLabel]);
+
+  const whatsappMessage = useMemo(
+    () => encodeURIComponent(messageText),
+    [messageText]
+  );
+
+  const mailtoHref = useMemo(() => {
+    const subject = encodeURIComponent('Замовлення РЕБ');
+    const body = encodeURIComponent(messageText);
+    return `mailto:${SITE_CONFIG.contact.email}?subject=${subject}&body=${body}`;
+  }, [messageText]);
+
 
   return (
     <div className="min-h-screen bg-black pt-24 pb-12">
@@ -44,7 +72,7 @@ export function EwsDetailClient({ ews, similar }: EwsDetailClientProps) {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-12">
           <div className="space-y-6">
-            <div className="relative aspect-square bg-black/50 border border-white/10 tactical-clip overflow-hidden group">
+            <div className="relative aspect-[4/3] bg-black/50 border border-white/10 tactical-clip overflow-hidden group">
               {currentImage ? (
                 <div className="relative w-full h-full">
                   <Image
@@ -52,7 +80,7 @@ export function EwsDetailClient({ ews, similar }: EwsDetailClientProps) {
                     alt={ews.model}
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 40vw"
-                    className="object-contain p-8"
+                    className="object-cover object-center"
                     priority
                   />
 
@@ -102,7 +130,7 @@ export function EwsDetailClient({ ews, similar }: EwsDetailClientProps) {
                   <button
                     key={index}
                     onClick={() => setCurrentImageIndex(index)}
-                    className={`aspect-square border-2 transition-all ${
+                    className={`aspect-[4/3] border-2 transition-all ${
                       index === currentImageIndex
                         ? 'border-aero-accent bg-aero/10'
                         : 'border-white/10 hover:border-white/30'
@@ -129,7 +157,7 @@ export function EwsDetailClient({ ews, similar }: EwsDetailClientProps) {
                 {ews.model}
               </h1>
               <div className="text-3xl font-mono text-green-400">
-                {ews.price.toLocaleString()} грн
+                {ews.price.toLocaleString('uk-UA')} грн
               </div>
             </div>
 
@@ -139,15 +167,23 @@ export function EwsDetailClient({ ews, similar }: EwsDetailClientProps) {
               </p>
             )}
 
-            <a
-              href={SITE_CONFIG.social.whatsapp}
-              className="w-full bg-aero hover:bg-aero-light text-white font-bold py-4 px-8 tactical-clip uppercase tracking-wider transition-all hover:scale-[1.02] shadow-lg shadow-aero/20 text-lg flex items-center justify-center mb-8"
-              target="_blank"
-              rel="noreferrer"
-            >
-              <Target className="w-5 h-5 mr-2" />
-              ЗАМОВИТИ ЦЮ СИСТЕМУ
-            </a>
+            <div className="space-y-3 mb-8">
+              <a
+                href={`${SITE_CONFIG.social.whatsapp}?text=${whatsappMessage}`}
+                className="w-full bg-aero hover:bg-aero-light text-white font-bold py-4 px-8 tactical-clip uppercase tracking-wider transition-all hover:scale-[1.02] shadow-lg shadow-aero/20 text-lg flex items-center justify-center"
+                target="_blank"
+                rel="noreferrer"
+              >
+                <Target className="w-5 h-5 mr-2" />
+                Замовити у WhatsApp
+              </a>
+              <a
+                href={mailtoHref}
+                className="w-full bg-transparent border border-white/20 hover:border-aero-accent text-white hover:text-aero-accent font-bold py-4 px-8 tactical-clip uppercase tracking-wider transition-all text-lg flex items-center justify-center"
+              >
+                Замовити через Email
+              </a>
+            </div>
 
             <p className="text-xs text-center text-gray-500 mb-8">
               * Для замовлення напишіть нам повідомлення або зателефонуйте
@@ -158,7 +194,7 @@ export function EwsDetailClient({ ews, similar }: EwsDetailClientProps) {
         {ews.detailedInfo && (
           <div className="bg-black/50 border border-white/10 tactical-clip p-8 mb-12">
             <h3 className="text-xl font-stencil text-white mb-6 border-b border-white/10 pb-3">
-              ДЕТАЛЬНИЙ ОПИС
+              Детальний опис
             </h3>
             <div
               className="prose prose-invert max-w-none"
@@ -170,7 +206,7 @@ export function EwsDetailClient({ ews, similar }: EwsDetailClientProps) {
         {similar.length > 0 && (
           <div className="border-t border-white/10 pt-12">
             <h2 className="text-3xl font-stencil text-white mb-8">
-              СХОЖІ СИСТЕМИ
+              Схожі системи
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {similar.map((item) => (

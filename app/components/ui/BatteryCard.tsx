@@ -21,7 +21,7 @@ export function BatteryCard({ battery }: BatteryCardProps) {
   return (
     <Link href={`/batteries/${battery.id}`} className="group block h-full">
       <div className="bg-gray-tactical/30 backdrop-blur-sm border border-white/10 tactical-clip h-full flex flex-col transition-all duration-300 hover:border-aero-accent/50 hover:bg-gray-tactical/50 hover:-translate-y-1 relative overflow-hidden">
-        <div className="relative h-56 bg-black/50 overflow-hidden border-b border-white/5 group-hover:border-aero-accent/20 transition-colors">
+        <div className="relative aspect-[4/3] bg-black/50 overflow-hidden border-b border-white/5 group-hover:border-aero-accent/20 transition-colors">
           {battery.image ? (
             <div className="relative w-full h-full">
               <Image
@@ -58,7 +58,7 @@ export function BatteryCard({ battery }: BatteryCardProps) {
               {battery.manufacturer} • {battery.batteryType} • {battery.configuration}
             </span>
             <span className="flex items-center text-aero-accent text-sm font-bold uppercase tracking-wider group-hover:translate-x-1 transition-transform">
-              Детальніше <ChevronRight className="w-4 h-4 ml-1" />
+              Переглянути <ChevronRight className="w-4 h-4 ml-1" />
             </span>
           </div>
         </div>

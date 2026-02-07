@@ -13,13 +13,22 @@ export async function GET(request: NextRequest) {
     let sql: string;
     let params: any[] = [];
 
+    const priceExpr = `
+      price
+      + COALESCE((SELECT price FROM rx_options WHERE id = rx_default_id), 0)
+      + COALESCE((SELECT price FROM vtx_options WHERE id = vtx_default_id), 0)
+      + COALESCE((SELECT price FROM camera_options WHERE id = camera_default_id), 0)
+      + COALESCE((SELECT price FROM battery_options WHERE id = battery_default_id), 0)
+      + COALESCE((SELECT price FROM fiber_spool_options WHERE id = fiber_spool_default_id), 0)
+    `;
+
     if (type === 'drone') {
       sql = `
         SELECT 
           id,
           'drone' as type,
           model,
-          price,
+          (${priceExpr}) as price,
           production_status as productionStatus,
           size,
           application,
@@ -51,7 +60,7 @@ export async function GET(request: NextRequest) {
           id,
           'ews' as type,
           model,
-          price,
+          (${priceExpr}) as price,
           production_status as productionStatus,
           description,
           detailed_info as detailedInfo,      -- ДОДАВ
@@ -72,7 +81,7 @@ export async function GET(request: NextRequest) {
           id,
           'drone' as type,
           model,
-          price,
+          (${priceExpr}) as price,
           production_status as productionStatus,
           size,
           application,
@@ -101,7 +110,7 @@ export async function GET(request: NextRequest) {
           id,
           'ews' as type,
           model,
-          price,
+          (${priceExpr}) as price,
           production_status as productionStatus,
           NULL as size,
           NULL as application,
@@ -130,7 +139,7 @@ export async function GET(request: NextRequest) {
           id,
           'detector' as type,
           model,
-          price,
+          (${priceExpr}) as price,
           production_status as productionStatus,
           NULL as size,
           'detector' as application,

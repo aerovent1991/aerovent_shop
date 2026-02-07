@@ -465,7 +465,7 @@ export default function UAVCatalog() {
                       type="range"
                       min={filtersData.priceRange.min}
                       max={filtersData.priceRange.max}
-                      step="500"
+                      step="10"
                       value={priceRange[1]}
                       onChange={(e) => handleSliderChange(parseInt(e.target.value))}
                       className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-aero-accent"
