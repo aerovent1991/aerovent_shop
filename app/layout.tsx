@@ -22,28 +22,59 @@ const blackOpsOne = Black_Ops_One({
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_CONFIG.siteUrl),
   title: {
-    default: "АЕРО ВЕНТ",
-    template: "%s | АЕРО ВЕНТ",
+    default: SITE_CONFIG.name,
+    template: `%s | ${SITE_CONFIG.name}`,
   },
-  description: "Сайт виробника безпілотних систем та РЕБ.",
-  
+  description: "АЕРО ВЕНТ — виробник безпілотних систем та РЕБ. AeroVent, aerovent, aero vent, аеровент.",
+  keywords: [
+    "купити FPV",
+    "АЕРО ВЕНТ",
+    "AeroVent",
+    "aerovent",
+    "aero vent",
+    "аеровент",
+    "безпілотні системи",
+    "купити дрон",
+    "купити РЕБ",
+    "FPV",
+    "БПЛА",
+    "дрони",
+    "РЕБ"
+  ],
   robots: {
-  index: true,
-  follow: true,
-  googleBot: {
     index: true,
     follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+    },
   },
-},
-
   openGraph: {
     type: "website",
     locale: "uk_UA",
     url: SITE_CONFIG.siteUrl,
-    siteName: "АЕРО ВЕНТ",
+    siteName: SITE_CONFIG.name,
+    title: "АЕРО ВЕНТ",
+    description: "Виробник безпілотних систем та РЕБ. AeroVent, aerovent, aero vent, аеровент.",
+    images: [
+      {
+        url: "/images/brand_icon.png",
+        width: 512,
+        height: 512,
+        alt: "АЕРО ВЕНТ",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
+    title: "АЕРО ВЕНТ",
+    description: "Виробник безпілотних систем та РЕБ. AeroVent, aerovent, aero vent, аеровент.",
+    images: ["/images/brand_icon.png"],
+  },
+  icons: {
+    icon: "/images/brand_icon.png",
+    shortcut: "/images/brand_icon.png",
+    apple: "/images/brand_icon.png",
   },
 };
 
