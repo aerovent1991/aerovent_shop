@@ -41,14 +41,23 @@ export const metadata: Metadata = {
     "дрони",
     "РЕБ"
   ],
-  robots: {
-    index: true,
-    follow: true,
+
+   robots: {
+    index: false,
+    follow: false,
     googleBot: {
-      index: true,
-      follow: true,
+      index: false,
+      follow: false,
     },
   },
+  // robots: {
+  //   index: true,
+  //   follow: true,
+  //   googleBot: {
+  //     index: true,
+  //     follow: true,
+  //   },
+  // },
   openGraph: {
     type: "website",
     locale: "uk_UA",
