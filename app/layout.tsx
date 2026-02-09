@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { Inter, Black_Ops_One } from 'next/font/google';
 import { Providers } from "./providers";
 import { AnalyticsTracker } from "./components/AnalyticsTracker";
+import { SimplePasswordGate } from "./components/SimplePasswordGate";
 import "./globals.css";
 import { SITE_CONFIG } from "@/config/site";
 
@@ -98,7 +99,9 @@ export default function RootLayout({
         <Providers>
           <AnalyticsTracker />
           <Header />
-          <main className="flex-grow">{children}</main>
+          <SimplePasswordGate>
+            <main className="flex-grow">{children}</main>
+          </SimplePasswordGate>
           <Footer />
         </Providers>
       </body>
