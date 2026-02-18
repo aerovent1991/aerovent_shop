@@ -18,7 +18,7 @@ export function DetectorCard({ detector }: DetectorCardProps) {
   return (
     <Link href={`/drone_detectors/${detector.id}`} className="group block h-full">
       <div className="bg-gray-tactical/30 backdrop-blur-sm border border-white/10 tactical-clip h-full flex flex-col transition-all duration-300 hover:border-aero-accent/50 hover:bg-gray-tactical/50 hover:-translate-y-1 relative overflow-hidden">
-        <div className="relative aspect-[4/3] bg-black/50 overflow-hidden border-b border-white/5 group-hover:border-aero-accent/20 transition-colors">
+        <div className="relative aspect-[4/3] bg-white overflow-hidden border-b border-white/5 group-hover:border-aero-accent/20 transition-colors">
           {detector.image ? (
             <div className="relative w-full h-full">
               <Image
@@ -26,9 +26,8 @@ export function DetectorCard({ detector }: DetectorCardProps) {
                 alt={detector.model}
                 fill
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                className="object-cover opacity-85 group-hover:opacity-100 transition-opacity"
+                className="object-contain p-2"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
             </div>
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">

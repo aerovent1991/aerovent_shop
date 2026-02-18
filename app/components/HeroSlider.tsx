@@ -163,7 +163,7 @@ export function HeroSlider({ initialDrones }: HeroSliderProps) {
 
           {/* Зображення дрона */}
           <div className="w-full lg:w-3/5 flex justify-center lg:justify-end relative z-0 mb-8 lg:mb-0">
-            <div className="relative w-[280px] sm:w-[350px] md:w-[450px] lg:w-[600px] aspect-[4/3] border border-white/10 bg-white/5 backdrop-blur-sm tactical-clip">
+            <div className="relative w-[280px] sm:w-[350px] md:w-[450px] lg:w-[600px] aspect-[4/3] border border-white/10 bg-white tactical-clip">
               {currentDrone.image ? (
                 <div className="relative w-full h-full">
                   <Image
@@ -171,7 +171,7 @@ export function HeroSlider({ initialDrones }: HeroSliderProps) {
                     alt={currentDrone.name}
                     fill
                     sizes="(max-width: 768px) 280px, (max-width: 1024px) 450px, 600px"
-                    className="object-cover object-center opacity-90"
+                    className="object-contain object-center p-3"
                     priority
                     draggable={false}
                   />

@@ -4,7 +4,6 @@ import type { Metadata } from "next";
 import { Inter, Black_Ops_One } from 'next/font/google';
 import { Providers } from "./providers";
 import { AnalyticsTracker } from "./components/AnalyticsTracker";
-import { SimplePasswordGate } from "./components/SimplePasswordGate";
 import "./globals.css";
 import { SITE_CONFIG } from "@/config/site";
 
@@ -26,7 +25,7 @@ export const metadata: Metadata = {
     default: SITE_CONFIG.name,
     template: `%s | ${SITE_CONFIG.name}`,
   },
-  description: "АЕРО ВЕНТ — виробник безпілотних систем та РЕБ. AeroVent, aerovent, aero vent, аеровент.",
+  description: "АЕРО ВЕНТ — виробник БПЛА, НРК та РЕБ систем. aerovent, aero vent, аеровент.",
   keywords: [
     "купити FPV",
     "АЕРО ВЕНТ",
@@ -43,22 +42,22 @@ export const metadata: Metadata = {
     "РЕБ"
   ],
 
-   robots: {
-    index: false,
-    follow: false,
-    googleBot: {
-      index: false,
-      follow: false,
-    },
-  },
-  // robots: {
-  //   index: true,
-  //   follow: true,
+  //  robots: {
+  //   index: false,
+  //   follow: false,
   //   googleBot: {
-  //     index: true,
-  //     follow: true,
+  //     index: false,
+  //     follow: false,
   //   },
   // },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+    },
+  },
   openGraph: {
     type: "website",
     locale: "uk_UA",
@@ -99,9 +98,7 @@ export default function RootLayout({
         <Providers>
           <AnalyticsTracker />
           <Header />
-          <SimplePasswordGate>
-            <main className="flex-grow">{children}</main>
-          </SimplePasswordGate>
+          <main className="flex-grow">{children}</main>
           <Footer />
         </Providers>
       </body>

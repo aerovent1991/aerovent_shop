@@ -57,13 +57,13 @@ export default function TechnologiesPage() {
               key={tech.title}
               className="bg-gray-tactical/30 backdrop-blur-sm border border-white/10 tactical-clip p-6 flex flex-col"
             >
-              <div className="relative w-full h-56 mb-5 border border-white/10 bg-black/40 tactical-clip overflow-hidden">
+              <div className="relative w-full h-56 mb-5 border border-white/10 bg-white tactical-clip overflow-hidden">
                 <Image
                   src={tech.image}
                   alt={tech.title}
                   fill
                   sizes="(max-width: 768px) 100vw, 50vw"
-                  className="object-cover"
+                  className="object-contain p-2"
                   priority={tech.title === 'Betaflight'}
                 />
               </div>

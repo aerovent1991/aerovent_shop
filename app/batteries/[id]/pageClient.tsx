@@ -90,7 +90,7 @@ export function BatteryDetailClient({ battery, similar }: Props) {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-12">
           <div className="space-y-6">
-            <div className="relative aspect-[4/3] bg-black/50 border border-white/10 tactical-clip overflow-hidden group">
+            <div className="relative aspect-[4/3] bg-white border border-white/10 tactical-clip overflow-hidden group">
               {currentImage ? (
                 <div className="relative w-full h-full">
                   <Image
@@ -98,7 +98,7 @@ export function BatteryDetailClient({ battery, similar }: Props) {
                     alt={battery.model}
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 40vw"
-                    className="object-cover object-center"
+                    className="object-contain object-center p-3"
                     priority
                   />
 
@@ -148,7 +148,7 @@ export function BatteryDetailClient({ battery, similar }: Props) {
                   <button
                     key={index}
                     onClick={() => setCurrentImageIndex(index)}
-                    className={`aspect-[4/3] border-2 transition-all ${
+                    className={`aspect-[4/3] border-2 bg-white transition-all ${
                       index === currentImageIndex
                         ? 'border-aero-accent bg-aero/10'
                         : 'border-white/10 hover:border-white/30'
@@ -160,7 +160,7 @@ export function BatteryDetailClient({ battery, similar }: Props) {
                         alt={`${battery.model} - вид ${index + 1}`}
                         fill
                         sizes="(max-width: 768px) 25vw, 10vw"
-                        className="object-cover"
+                        className="object-contain p-1"
                       />
                     </div>
                   </button>
