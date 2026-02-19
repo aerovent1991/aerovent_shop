@@ -54,6 +54,8 @@ export function HeroSlider({ initialDrones }: HeroSliderProps) {
   const detailPath =
     currentDrone.type === 'drone'
       ? `/uav/${currentDrone.id}`
+      : currentDrone.type === 'detector'
+      ? `/drone_detectors/${currentDrone.id}`
       : `/electronic_warfare_systems/${currentDrone.id}`;
   const keySpecs = currentDrone.specs.slice(0, 4);
 
